@@ -1,0 +1,44 @@
+{
+  "name": "verden-backend",
+  "version": "0.0.1-alpha",
+  "description": "Verden is a lore and character organiser for TTRPGs. This project contains the backend for it.",
+  "homepage": "https://github.com/Beedit/Verden-Backend#readme",
+  "bugs": {
+    "url": "https://github.com/Beedit/Verden-Backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Beedit/Verden-Backend.git"
+  },
+  "license": "MIT",
+  "author": "beedit",
+  "type": "commonjs",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "npx ts-node ./src/index.ts"
+  },
+  "devDependencies": {
+    "@eslint/css": "^1.0.0",
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^1.1.0",
+    "@eslint/markdown": "^7.5.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.0",
+    "eslint": "^10.0.3",
+    "globals": "^17.4.0",
+    "jiti": "^2.6.1",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.1"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mongoose": "^9.3.0"
+  }
+}
