@@ -28,7 +28,7 @@ const createUser = async (username: string, password: string, callback: (respons
     }).exec();
 
     if (dupeName) {
-        callback( status.DUPLICATE );
+        return callback( status.DUPLICATE );
     }
 
     try {

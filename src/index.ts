@@ -26,8 +26,8 @@ app.use(function(req: Request, res: Response, next: NextFunction){
     next();
 });
 
-app.post("createUser", (req: Request, res: Response) => {
-    if (!req.body.username || !req.body.password) {
+app.post("/createUser", (req: Request, res: Response) => {
+    if (req.body == undefined || !req.body.username || !req.body.password) {
         return res.status(400).json({ "Error": "Username and password required" });
     }
 
