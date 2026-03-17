@@ -22,7 +22,6 @@ const connectDB = async (uri: string) => {
 
 
 const generateAPIKey = () : string => {
-    crypto.randomBytes(50).toString("base64").slice(0,-4);
     return crypto.randomUUID().replace(/-/g, "");
 };
 
