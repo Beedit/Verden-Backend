@@ -22,7 +22,8 @@ const connectDB = async (uri: string) => {
 
 
 const generateAPIKey = () : string => {
-    return crypto.randomBytes(50).toString("base64").slice(0,-4);
+    crypto.randomBytes(50).toString("base64").slice(0,-4);
+    return crypto.randomUUID().replace(/-/g, "");
 };
 
 const createUser = async (username: string, password: string): Promise<[ status: StatusEnum, key?:string ]> => {
@@ -85,14 +86,11 @@ const getUserFromApiKey = async (key: string): Promise<[status: StatusEnum, user
 
 const createWorld = async (apiKey: string, world: IWorld): Promise<[status: StatusEnum, worldId?: Types.ObjectId | undefined]> => {
     const [ response, user ] = await getUserFromApiKey(apiKey);
-
-    if (response == StatusEnum.SUCCESS && user) {
+    if (response == StatusEnum.SUCCESS && user?._id) {
         try {
             const newWorld = await World.create({
                 name: world.name,
                 owner: user._id,
-
-                description: world.description
             });
 
             return [StatusEnum.SUCCESS, newWorld._id];

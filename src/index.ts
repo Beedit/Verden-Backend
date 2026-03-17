@@ -85,6 +85,31 @@ app.get("/getApiKey",
     }
 );
 
+app.post("/createWorld",
+    body("apiKey").notEmpty().escape().withMessage("Please provide a valid API Key"),
+    body("name").notEmpty().escape().withMessage("Please provide a valid name"),
+    body("description").optional().escape(),
+    async (req: Request, res: Response) => {
+        const result = validationResult(req);
+        const data = matchedData(req);
+
+        if (result.isEmpty()) {
+            const newWorld: IWorld = {
+                name: data.name,
+                description: data.description
+            };
+            const [result, worldId] = await db.createWorld(data.apiKey, newWorld);
+            if (result == StatusEnum.SUCCESS) {
+                res.status(201).json({ "id": worldId});
+            } else {
+                res.status(500).json({ "Error": "Unknown error" });
+            }
+        } else { 
+            return res.status(400).json({ "Error": result.array() });
+        }
+    }
+);
+
 
 // Unused methods and bad requests.
 app.all("/{*any}", (req: Request, res: Response) => {
