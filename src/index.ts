@@ -4,12 +4,13 @@
 require("dotenv").config();
 
 import { Response, Request, NextFunction } from "express";
-import { status } from "./enums/status";
+import { StatusEnum } from "./enums/statusEnum";
 
 import express from "express";
 import db from "./mongoDB/db";
 import mongoose from "mongoose";
 import { body, matchedData, validationResult } from "express-validator";
+import { IWorld } from "./mongoDB/interfaces/IWorld";
 
 // Start express app
 const port = process.env.PORT;
@@ -50,9 +51,9 @@ app.post("/createUser",
 
         if (result.isEmpty()) {
             const [result, key] = await db.createUser(data.username, data.password);
-            if (result == status.SUCCESS) {
+            if (result == StatusEnum.SUCCESS) {
                 res.status(201).json({ "apiKey": key});
-            } else if (result == status.DUPLICATE) {
+            } else if (result == StatusEnum.DUPLICATE) {
                 res.status(409).json({ "Error": "Username in use"});
             } else {
                 res.status(500).json({ "Error": "Unknown error" });
@@ -72,7 +73,7 @@ app.get("/getApiKey",
 
         if (result.isEmpty()) {
             const [response, key] = await db.getApiKey(data.username, data.password);
-            if (response == status.SUCCESS) {
+            if (response == StatusEnum.SUCCESS) {
                 res.json({"apiKey": key});
             } else {
                 res.status(401).json({ "Error": "Invalid username or password"});

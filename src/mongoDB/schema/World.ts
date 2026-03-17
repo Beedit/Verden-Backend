@@ -5,31 +5,38 @@ const worldSchema = new Schema({
         type: String,
         required: true
     },
-    description: {
-        type: String,
-    },
+
     owner: {
         type: mongoose.Schema.Types.ObjectId, ref: "User",
         required: true
     },
+
+
+    description: {
+        type: String,
+    },
     players: [
         {
-            type: mongoose.Schema.Types.ObjectId, ref: "User"
+            type: mongoose.Schema.Types.ObjectId, ref: "User",
+            required: false
         }
     ],
     areas: [
         {
-            type: mongoose.Schema.Types.ObjectId, ref: "Area"
+            type: mongoose.Schema.Types.ObjectId, ref: "Area",
+            required: false
         }
     ],
     npcs: [
         {
-            type: mongoose.Schema.Types.ObjectId, ref: "Character"
+            type: mongoose.Schema.Types.ObjectId, ref: "Character",
+            required: false
         }
     ],
     pcs: [
         {
-            type: mongoose.Schema.Types.ObjectId, ref: "Character"
+            type: mongoose.Schema.Types.ObjectId, ref: "Character",
+            required: false
         }
     ]
 });

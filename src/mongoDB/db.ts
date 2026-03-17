@@ -1,10 +1,12 @@
 // Imports requirements
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import User from "./schema/User";
-import { status } from "../enums/status";
+import World from "./schema/World";
+import { StatusEnum } from "../enums/statusEnum";
 import { IUser } from "./interfaces/IUser";
+import { IWorld } from "./interfaces/IWorld";
 
 // Handles connections to the database. Uses a variable from dotenv to provide the URL
 const connectDB = async (uri: string) => {
@@ -23,13 +25,13 @@ const generateAPIKey = () : string => {
     return crypto.randomBytes(50).toString("base64").slice(0,-4);
 };
 
-const createUser = async (username: string, password: string): Promise<[ status: status, key?:string ]> => {
+const createUser = async (username: string, password: string): Promise<[ status: StatusEnum, key?:string ]> => {
     const dupeName = await User.findOne({
         username
     }).exec();
 
     if (dupeName) {
-        return [status.DUPLICATE];
+        return [StatusEnum.DUPLICATE];
     }
 
     try {
@@ -41,9 +43,9 @@ const createUser = async (username: string, password: string): Promise<[ status:
             apiKey: key
         });
 
-        return [ status.SUCCESS, key ];
+        return [ StatusEnum.SUCCESS, key ];
     } catch {
-        return [ status.ERROR ];
+        return [ StatusEnum.ERROR ];
     }
 };
 
@@ -60,26 +62,48 @@ const authenticate = async (username: string, password: string) => {
     return false;
 };
 
-const getApiKey = async (username: string, password: string): Promise<[status: status, apiKey?: string | undefined]> => {
+const getApiKey = async (username: string, password: string): Promise<[status: StatusEnum, apiKey?: string | undefined]> => {
     const auth = await authenticate(username, password);
     if (auth == true) {
         const user = await User.findOne({ username }).exec();
 
         if (user) {
-            return [status.SUCCESS, user.apiKey];
+            return [StatusEnum.SUCCESS, user.apiKey];
         }
     }
-    return [status.UNAUTHORISED];
+    return [StatusEnum.UNAUTHORISED];
 };
 
-const getUserFromApiKey = async (key: string): Promise<[status: status, user?: IUser | undefined]> => {
+const getUserFromApiKey = async (key: string): Promise<[status: StatusEnum, user?: IUser | undefined]> => {
     try {
         const user = await User.findOne({ apiKey: key }).exec() as IUser;
-        return [status.SUCCESS, user];
+        return [StatusEnum.SUCCESS, user];
     } catch {
-        return [status.ERROR];
+        return [StatusEnum.ERROR];
     }
+};
+
+const createWorld = async (apiKey: string, world: IWorld): Promise<[status: StatusEnum, worldId?: Types.ObjectId | undefined]> => {
+    const [ response, user ] = await getUserFromApiKey(apiKey);
+
+    if (response == StatusEnum.SUCCESS && user) {
+        try {
+            const newWorld = await World.create({
+                name: world.name,
+                owner: user._id,
+
+                description: world.description
+            });
+
+            return [StatusEnum.SUCCESS, newWorld._id];
+        } catch {
+            return [StatusEnum.ERROR];
+        }
+    }
+
+    return [StatusEnum.UNAUTHORISED];
+
 };
 
 // Exports the functions provided by this file
-export = { connectDB, createUser, getApiKey, getUserFromApiKey };
+export = { connectDB, createUser, getApiKey, getUserFromApiKey, createWorld };

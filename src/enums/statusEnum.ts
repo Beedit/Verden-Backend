@@ -1,4 +1,4 @@
-export enum status {
+export enum StatusEnum {
     DUPLICATE,
     ERROR,
     SUCCESS,
