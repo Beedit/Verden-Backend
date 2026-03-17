@@ -102,5 +102,31 @@ const createWorld = async (apiKey: string, world: IWorld): Promise<[status: Stat
 
 };
 
+const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum, world?: IWorld]> => {
+    const [ response, user ] = await getUserFromApiKey(apiKey);
+
+    if (response == StatusEnum.SUCCESS) {
+        try {
+            const w = await World.findById(id);
+            if (w != null && w.owner._id.equals(user?._id)) {
+                const returnWorld = {
+                    name: w.name,
+                    _id: w._id,
+
+                    description: w.description,
+                    players: w.players,
+                    npcs: w.npcs,
+                    pcs: w.pcs,
+                } as IWorld;
+                return [StatusEnum.SUCCESS, returnWorld];
+            }
+        } catch {
+            return [StatusEnum.ERROR];
+        }
+    }
+
+    return [StatusEnum.UNAUTHORISED];
+};
+
 // Exports the functions provided by this file
-export = { connectDB, createUser, getApiKey, getUserFromApiKey, createWorld };
+export = { connectDB, createUser, getApiKey, getUserFromApiKey, createWorld, getWorld };

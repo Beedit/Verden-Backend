@@ -110,6 +110,26 @@ app.post("/createWorld",
     }
 );
 
+app.get("/getWorld",
+    body("apiKey").notEmpty().escape().withMessage("Please provide a valid API Key"),
+    body("id").notEmpty().escape().withMessage("Please provide a valid world id"),
+    async (req: Request, res: Response) => {
+        const result = validationResult(req);
+        const data = matchedData(req);
+
+        if (result.isEmpty()) {
+            const [response, world] = await db.getWorld(data.apiKey, data.id);
+            if (response == StatusEnum.SUCCESS) {
+                res.json({ world });
+            } else {
+                res.status(401).json({ "Error": "Invalid API Key or world id."});
+            }
+            return;
+        }
+
+        res.status(400).json({ "Error": result.array() });
+    }
+);
 
 // Unused methods and bad requests.
 app.all("/{*any}", (req: Request, res: Response) => {
