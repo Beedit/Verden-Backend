@@ -23,13 +23,13 @@ const generateAPIKey = () : string => {
     return crypto.randomBytes(50).toString("base64").slice(0,-4);
 };
 
-const createUser = async (username: string, password: string, callback: (response: status, key?: string) => void) => {
+const createUser = async (username: string, password: string): Promise<[ status: status, key?:string ]> => {
     const dupeName = await User.findOne({
         username
     }).exec();
 
     if (dupeName) {
-        return callback( status.DUPLICATE );
+        return [status.DUPLICATE];
     }
 
     try {
@@ -41,9 +41,9 @@ const createUser = async (username: string, password: string, callback: (respons
             apiKey: key
         });
 
-        return callback( status.SUCCESS, key );
+        return [ status.SUCCESS, key ];
     } catch {
-        return callback( status.ERROR );
+        return [ status.ERROR ];
     }
 };
 
@@ -57,30 +57,29 @@ const authenticate = async (username: string, password: string) => {
     } catch {
         return false;
     }
+    return false;
 };
 
-const getApiKey = async (username: string, password: string, callback: (response?: string) => void) => {
+const getApiKey = async (username: string, password: string): Promise<[status: status, apiKey?: string | undefined]> => {
     const auth = await authenticate(username, password);
     if (auth == true) {
         const user = await User.findOne({ username }).exec();
 
         if (user) {
-            callback(String(user.apiKey));
+            return [status.SUCCESS, user.apiKey];
         }
-    } else {
-        callback();
     }
+    return [status.UNAUTHORISED];
 };
 
-const getUserFromApiKey = async (key: string, callback: (status: status, user?: IUser) => void) => {
+const getUserFromApiKey = async (key: string): Promise<[status: status, user?: IUser | undefined]> => {
     try {
         const user = await User.findOne({ apiKey: key }).exec() as IUser;
-        return callback(status.SUCCESS, user);
+        return [status.SUCCESS, user];
     } catch {
-        return callback(status.ERROR);
+        return [status.ERROR];
     }
 };
-
 
 // Exports the functions provided by this file
 export = { connectDB, createUser, getApiKey, getUserFromApiKey };

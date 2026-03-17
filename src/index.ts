@@ -49,42 +49,40 @@ app.post("/createUser",
         const data = matchedData(req);
 
         if (result.isEmpty()) {
-            await db.createUser(data.username, data.password, (result: status, apiKey?: string) => {
-                if (result == status.SUCCESS) {
-                    res.status(201).json({ "apiKey": apiKey});
-                } else if (result == status.DUPLICATE) {
-                    res.status(409).json({ "Error": "Username in use"});
-                } else {
-                    res.status(500).json({ "Error": "Unknown error" });
-                }
-            });
-            return;
+            const [result, key] = await db.createUser(data.username, data.password);
+            if (result == status.SUCCESS) {
+                res.status(201).json({ "apiKey": key});
+            } else if (result == status.DUPLICATE) {
+                res.status(409).json({ "Error": "Username in use"});
+            } else {
+                res.status(500).json({ "Error": "Unknown error" });
+            }
+        } else { 
+            return res.status(400).json({ "Error": result.array() });
         }
-
-        res.status(400).json({ "Error": result.array() });
-        return;
-    });
+    }
+);
 
 app.get("/getApiKey",
     body("username").notEmpty().trim().escape().withMessage("Please provide a valid username"),
     body("password").notEmpty().escape().withMessage("Please provide a valid password"),
-    (req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
         const result = validationResult(req);
         const data = matchedData(req);
 
         if (result.isEmpty()) {
-            db.getApiKey(data.username, data.password, (response) => {
-                if (response != undefined) {
-                    res.json({"apiKey": response});
-                } else {
-                    res.status(401).json({ "Error": "Invalid username or password"});
-                }
-            });
+            const [response, key] = await db.getApiKey(data.username, data.password);
+            if (response == status.SUCCESS) {
+                res.json({"apiKey": key});
+            } else {
+                res.status(401).json({ "Error": "Invalid username or password"});
+            }
             return;
         }
 
         res.status(400).json({ "Error": result.array() });
-    });
+    }
+);
 
 
 // Unused methods and bad requests.
@@ -95,7 +93,7 @@ app.all("/{*any}", (req: Request, res: Response) => {
 
 // Runs the API once the connection to the database has been made
 mongoose.connection.once("open", () => {
-    app.listen(port, () => {
+    app.listen(port, async () => {
         console.log(`Listening on port ${port}`);
     });
 });

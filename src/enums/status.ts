@@ -1,5 +1,6 @@
 export enum status {
     DUPLICATE,
     ERROR,
-    SUCCESS
+    SUCCESS,
+    UNAUTHORISED
 }
