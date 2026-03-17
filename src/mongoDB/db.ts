@@ -7,6 +7,7 @@ import World from "./schema/World";
 import { StatusEnum } from "../enums/statusEnum";
 import { IUser } from "./interfaces/IUser";
 import { IWorld } from "./interfaces/IWorld";
+import { IArea } from "./interfaces/IArea";
 
 // Handles connections to the database. Uses a variable from dotenv to provide the URL
 const connectDB = async (uri: string) => {
@@ -128,5 +129,22 @@ const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum
     return [StatusEnum.UNAUTHORISED];
 };
 
+// const createArea = async (apiKey: string, id: string, worldId: string, area: IArea): Promise<[status: StatusEnum, areaId?: Types.ObjectId | undefined]> => {
+//     const [ response, user ] = await getUserFromApiKey(apiKey);
+//     if (response == StatusEnum.SUCCESS) {
+//         try {
+//             const [response, world] = await getWorld(apiKey, worldId);
+//             if (response == StatusEnum.SUCCESS) {
+//                 world.
+//             }
+//         } catch {
+//             return [StatusEnum.ERROR];
+//         }
+//     }
+
+//     return [StatusEnum.UNAUTHORISED];
+
+// };
+
 // Exports the functions provided by this file
-export = { connectDB, createUser, getApiKey, getUserFromApiKey, createWorld, getWorld };
+export = { connectDB, createUser, getApiKey, createWorld, getWorld, createArea };
