@@ -1,10 +1,11 @@
 // Imports
 import mongoose from "mongoose";
+import { IUser } from "../interfaces/IUser";
 const Schema = mongoose.Schema;
 
 
 // Creates the schema with a structure suitable for the project
-const userSchema = new Schema({
+const userSchema = new Schema<IUser>({
     username: {
         type: String,
         required: true,
@@ -21,4 +22,4 @@ const userSchema = new Schema({
 });
 
 // Exports the schema with the name "User"
-export = mongoose.model("User", userSchema);
+export = mongoose.model<IUser>("User", userSchema);
