@@ -21,7 +21,14 @@ const areaSchema = new Schema({
         {
             type: mongoose.Schema.Types.ObjectId, ref: "Character"
         }
-    ]
+    ],
+    rootArea: {
+        type: mongoose.Schema.Types.ObjectId, ref: "Area"
+    },
+    world: {
+        type: mongoose.Schema.Types.ObjectId, ref: "World",
+        required: true
+    }
 });
 
 export = mongoose.model("Area", areaSchema);
