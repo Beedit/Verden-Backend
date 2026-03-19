@@ -112,6 +112,8 @@ const createWorld = async (apiKey: string, world: IWorld): Promise<[status: Stat
 // Currently this only gets the world if the user is the OWNER of it. 
 // Not ideal if you have more than one player. 
 // This is actually fine tho cos i can build another IWorld if the id is in the player list and remove the dmOnlyNotes at that point.
+
+// broken with player
 const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum, world?: IWorld]> => {
     const [ response, user ] = await getUserFromApiKey(apiKey);
 
@@ -120,18 +122,32 @@ const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum
             const w = await World.findById(id);
 
             // Need to update createWorld() to be able to remove the check for w.owner cos otherwise it causes problems
-            if (w && w.owner) {
+            if (w && w.owner && w.players) {
                 if (w.owner._id.equals(user?._id)){
                     const returnWorld = {
                         name: w.name,
-                        // _id: w._id,
+                        _id: w._id,
 
+                        dmOnlyNotes: w.dmOnlyNotes,
                         description: w.description,
                         players: w.players,
                         npcs: w.npcs,
                         pcs: w.pcs,
                     } as IWorld;
                     return [StatusEnum.SUCCESS, returnWorld];
+                } else if (w.players.some((player) => { return player.equals(user?._id); })) {
+                    if (w.owner._id.equals(user?._id)){
+                        const returnWorld = {
+                            name: w.name,
+                            _id: w._id,
+
+                            description: w.description,
+                            players: w.players,
+                            npcs: w.npcs,
+                            pcs: w.pcs,
+                        } as IWorld;
+                        return [StatusEnum.SUCCESS, returnWorld];
+                    }
                 }
             }
         } catch {
@@ -140,6 +156,22 @@ const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum
     }
 
     return [StatusEnum.UNAUTHORISED];
+};
+
+
+// Owner can add a player to a world with their Id.
+const addPlayerToWorld = async (apiKey: string, worldId: string, playerId: string) => {
+    const [ userResponse, user ] = await getUserFromApiKey(apiKey);
+
+    if (userResponse == StatusEnum.SUCCESS) {
+        const world = await World.findOne({_id: worldId}).exec();
+        if (world?.owner?._id.equals(user?._id) && !world?.players?.some((x) => { return x.equals(playerId); })) {
+            world.players?.push(new mongoose.Types.ObjectId(playerId));
+            world.save();
+            return StatusEnum.SUCCESS;
+        }
+    }
+    return StatusEnum.UNAUTHORISED;
 };
 
 // const createArea = async (apiKey: string, id: string, worldId: string, area: IArea): Promise<[status: StatusEnum, areaId?: Types.ObjectId | undefined]> => {
@@ -160,4 +192,4 @@ const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum
 // };
 
 // Exports the functions provided by this file
-export = { connectDB, createUser, getApiKey, createWorld, getWorld };
+export = { connectDB, createUser, getApiKey, createWorld, getWorld, addPlayerToWorld };
