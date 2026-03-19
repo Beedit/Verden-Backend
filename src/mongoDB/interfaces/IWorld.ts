@@ -5,6 +5,7 @@ export interface IWorld {
     owner?: Types.ObjectId,
     
     description?: string,
+    dmOnlyNotes?: string,
     players?: Types.ObjectId[],
     areas?: Types.ObjectId[],
     npcs?: Types.ObjectId[],

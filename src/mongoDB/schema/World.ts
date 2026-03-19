@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+import { IWorld } from "../interfaces/IWorld";
 const Schema = mongoose.Schema;
-const worldSchema = new Schema({
+
+const worldSchema = new Schema<IWorld>({
     name: {
         type: String,
         required: true
@@ -13,6 +15,9 @@ const worldSchema = new Schema({
 
 
     description: {
+        type: String,
+    },
+    dmOnlyNotes: {
         type: String,
     },
     players: [
@@ -41,4 +46,4 @@ const worldSchema = new Schema({
     ]
 });
 
-export = mongoose.model("World", worldSchema);
+export = mongoose.model<IWorld>("World", worldSchema);

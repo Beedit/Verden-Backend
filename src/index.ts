@@ -96,7 +96,7 @@ app.post("/createWorld",
         if (result.isEmpty()) {
             const newWorld: IWorld = {
                 name: data.name,
-                description: data.description
+                description: data.description,
             };
             const [result, worldId] = await db.createWorld(data.apiKey, newWorld);
             if (result == StatusEnum.SUCCESS) {
@@ -131,26 +131,26 @@ app.get("/getWorld",
     }
 );
 
-app.post("/createArea",
-    body("apiKey").notEmpty().escape().withMessage("Please provide a valid API Key"),
-    body("id").notEmpty().escape().withMessage("Please provide a valid world id"),
-    async (req: Request, res: Response) => {
-        const result = validationResult(req);
-        const data = matchedData(req);
+// app.post("/createArea",
+//     body("apiKey").notEmpty().escape().withMessage("Please provide a valid API Key"),
+//     body("id").notEmpty().escape().withMessage("Please provide a valid world id"),
+//     async (req: Request, res: Response) => {
+//         const result = validationResult(req);
+//         const data = matchedData(req);
 
-        if (result.isEmpty()) {
-            const [response, area] = await db.createArea(data, data);
-            if (response == StatusEnum.SUCCESS) {
-                res.json({ area });
-            } else {
-                res.status(401).json({ "Error": "Invalid API Key or world id."});
-            }
-            return;
-        }
+//         if (result.isEmpty()) {
+//             const [response, area] = await db.createArea(data, data);
+//             if (response == StatusEnum.SUCCESS) {
+//                 res.json({ area });
+//             } else {
+//                 res.status(401).json({ "Error": "Invalid API Key or world id."});
+//             }
+//             return;
+//         }
 
-        res.status(400).json({ "Error": result.array() });
-    }
-);
+//         res.status(400).json({ "Error": result.array() });
+//     }
+// );
 
 // Unused methods and bad requests.
 app.all("/{*any}", (req: Request, res: Response) => {

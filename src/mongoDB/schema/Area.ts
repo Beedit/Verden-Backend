@@ -1,11 +1,16 @@
 import mongoose from "mongoose";
+import { IArea } from "../interfaces/IArea";
 const Schema = mongoose.Schema;
-const areaSchema = new Schema({
+
+const areaSchema = new Schema<IArea>({
     name: {
         type: String,
         required: true
     },
     description: {
+        type: String,
+    },
+    dmOnlyNotes: {
         type: String,
     },
     owner: {
