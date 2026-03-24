@@ -112,8 +112,6 @@ const createWorld = async (apiKey: string, world: IWorld): Promise<[status: Stat
 // Currently this only gets the world if the user is the OWNER of it. 
 // Not ideal if you have more than one player. 
 // This is actually fine tho cos i can build another IWorld if the id is in the player list and remove the dmOnlyNotes at that point.
-
-// broken with player
 const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum, world?: IWorld]> => {
     const [ response, user ] = await getUserFromApiKey(apiKey);
 
@@ -127,6 +125,7 @@ const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum
                     const returnWorld = {
                         name: w.name,
                         _id: w._id,
+                        owner: w.owner,
 
                         dmOnlyNotes: w.dmOnlyNotes,
                         description: w.description,
@@ -136,18 +135,17 @@ const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum
                     } as IWorld;
                     return [StatusEnum.SUCCESS, returnWorld];
                 } else if (w.players.some((player) => { return player.equals(user?._id); })) {
-                    if (w.owner._id.equals(user?._id)){
-                        const returnWorld = {
-                            name: w.name,
-                            _id: w._id,
+                    const returnWorld = {
+                        name: w.name,
+                        _id: w._id,
+                        owner: w.owner,
 
-                            description: w.description,
-                            players: w.players,
-                            npcs: w.npcs,
-                            pcs: w.pcs,
-                        } as IWorld;
-                        return [StatusEnum.SUCCESS, returnWorld];
-                    }
+                        description: w.description,
+                        players: w.players,
+                        npcs: w.npcs,
+                        pcs: w.pcs,
+                    } as IWorld;
+                    return [StatusEnum.SUCCESS, returnWorld];
                 }
             }
         } catch {
