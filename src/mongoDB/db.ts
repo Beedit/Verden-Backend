@@ -7,6 +7,7 @@ import World from "./schema/World";
 import { StatusEnum } from "../enums/statusEnum";
 import { IUser } from "./interfaces/IUser";
 import { IWorld } from "./interfaces/IWorld";
+import Area from "./schema/Area";
 
 // Handles connections to the database. Uses a variable from dotenv to provide the URL
 const connectDB = async (uri: string) => {
@@ -89,12 +90,12 @@ const getUserFromApiKey = async (key: string): Promise<[status: StatusEnum, user
 };
 
 // Creates a world in the database.
-const createWorld = async (apiKey: string, world: IWorld): Promise<[status: StatusEnum, worldId?: Types.ObjectId | undefined]> => {
+const createWorld = async (apiKey: string, name: string): Promise<[status: StatusEnum, worldId?: Types.ObjectId | undefined]> => {
     const [ response, user ] = await getUserFromApiKey(apiKey);
     if (response == StatusEnum.SUCCESS && user?._id) {
         try {
             const newWorld = await World.create({
-                name: world.name,
+                name: name,
                 owner: user._id,
             });
 
@@ -109,9 +110,6 @@ const createWorld = async (apiKey: string, world: IWorld): Promise<[status: Stat
 };
 
 
-// Currently this only gets the world if the user is the OWNER of it. 
-// Not ideal if you have more than one player. 
-// This is actually fine tho cos i can build another IWorld if the id is in the player list and remove the dmOnlyNotes at that point.
 const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum, world?: IWorld]> => {
     const [ response, user ] = await getUserFromApiKey(apiKey);
 
@@ -119,7 +117,6 @@ const getWorld = async (apiKey: string, id: string): Promise<[status: StatusEnum
         try {
             const w = await World.findById(id);
 
-            // Need to update createWorld() to be able to remove the check for w.owner cos otherwise it causes problems
             if (w && w.owner && w.players) {
                 if (w.owner._id.equals(user?._id)){
                     const returnWorld = {
@@ -172,22 +169,28 @@ const addPlayerToWorld = async (apiKey: string, worldId: string, playerId: strin
     return StatusEnum.UNAUTHORISED;
 };
 
-// const createArea = async (apiKey: string, id: string, worldId: string, area: IArea): Promise<[status: StatusEnum, areaId?: Types.ObjectId | undefined]> => {
-//     const [ response, user ] = await getUserFromApiKey(apiKey);
-//     if (response == StatusEnum.SUCCESS) {
-//         try {
-//             const [response, world] = await getWorld(apiKey, worldId);
-//             if (response == StatusEnum.SUCCESS) {
-//                 world.
-//             }
-//         } catch {
-//             return [StatusEnum.ERROR];
-//         }
-//     }
+const createArea = async (apiKey: string, worldId: string, areaName: string): Promise<[status: StatusEnum, areaId?: Types.ObjectId | undefined]> => {
+    const [ response, user ] = await getUserFromApiKey(apiKey);
+    if (response == StatusEnum.SUCCESS && user) {
+        try {
+            const newArea = await Area.create({
+                name: areaName,
+                owner: user._id,
+                world: worldId,
+            });
 
-//     return [StatusEnum.UNAUTHORISED];
+            const world = await World.findById(worldId).exec();
+            
+            world?.areas?.push(newArea._id);
+            world?.save();
+            return [StatusEnum.SUCCESS];
 
-// };
+        } catch {
+            return [StatusEnum.ERROR];
+        }
+    }
+    return [StatusEnum.UNAUTHORISED];
+};
 
 // Exports the functions provided by this file
-export = { connectDB, createUser, getApiKey, createWorld, getWorld, addPlayerToWorld };
+export = { connectDB, createUser, getApiKey, createWorld, getWorld, addPlayerToWorld, createArea };

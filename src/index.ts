@@ -10,7 +10,6 @@ import express from "express";
 import db from "./mongoDB/db";
 import mongoose from "mongoose";
 import { body, matchedData, validationResult } from "express-validator";
-import { IWorld } from "./mongoDB/interfaces/IWorld";
 
 // Start express app
 const port = process.env.PORT;
@@ -88,17 +87,12 @@ app.get("/getApiKey",
 app.post("/createWorld",
     body("apiKey").notEmpty().escape().withMessage("Please provide a valid API Key"),
     body("name").notEmpty().escape().withMessage("Please provide a valid name"),
-    body("description").optional().escape(),
     async (req: Request, res: Response) => {
         const result = validationResult(req);
         const data = matchedData(req);
 
         if (result.isEmpty()) {
-            const newWorld: IWorld = {
-                name: data.name,
-                description: data.description,
-            };
-            const [result, worldId] = await db.createWorld(data.apiKey, newWorld);
+            const [result, worldId] = await db.createWorld(data.apiKey, data.name);
             if (result == StatusEnum.SUCCESS) {
                 res.status(201).json({ "id": worldId});
             } else {
@@ -131,26 +125,27 @@ app.get("/getWorld",
     }
 );
 
-// app.post("/createArea",
-//     body("apiKey").notEmpty().escape().withMessage("Please provide a valid API Key"),
-//     body("id").notEmpty().escape().withMessage("Please provide a valid world id"),
-//     async (req: Request, res: Response) => {
-//         const result = validationResult(req);
-//         const data = matchedData(req);
+app.post("/createArea",
+    body("apiKey").notEmpty().escape().withMessage("Please provide a valid API Key"),
+    body("worldId").notEmpty().escape().withMessage("Please provide a valid world id"),
+    body("name").notEmpty().escape().withMessage("Please provide a valid name"),
+    async (req: Request, res: Response) => {
+        const result = validationResult(req);
+        const data = matchedData(req);
 
-//         if (result.isEmpty()) {
-//             const [response, area] = await db.createArea(data, data);
-//             if (response == StatusEnum.SUCCESS) {
-//                 res.json({ area });
-//             } else {
-//                 res.status(401).json({ "Error": "Invalid API Key or world id."});
-//             }
-//             return;
-//         }
+        if (result.isEmpty()) {
+            const [response, area] = await db.createArea(data.apiKey, data.worldId, data.name);
+            if (response == StatusEnum.SUCCESS) {
+                res.json({ area });
+            } else {
+                res.status(401).json({ "Error": "Invalid API Key or world id."});
+            }
+            return;
+        }
 
-//         res.status(400).json({ "Error": result.array() });
-//     }
-// );
+        res.status(400).json({ "Error": result.array() });
+    }
+);
 
 // Unused methods and bad requests.
 app.all("/{*any}", (req: Request, res: Response) => {
@@ -161,6 +156,6 @@ app.all("/{*any}", (req: Request, res: Response) => {
 // Runs the API once the connection to the database has been made
 mongoose.connection.once("open", () => {
     app.listen(port, async () => {
-        console.log(`Listening on port ${port}`);
+        console.log(`Listening on port ${port} \nRunning Verden version ${process.env.npm_package_version}`);
     });
 });
