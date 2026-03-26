@@ -1,6 +1,6 @@
 {
   "name": "verden-backend",
-  "version": "0.0.1-alpha",
+  "version": "0.1.0",
   "description": "Verden is a lore and character organiser for TTRPGs. This project contains the backend for it.",
   "homepage": "https://github.com/Beedit/Verden-Backend#readme",
   "bugs": {
