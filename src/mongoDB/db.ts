@@ -192,5 +192,26 @@ const createArea = async (apiKey: string, worldId: string, areaName: string): Pr
     return [StatusEnum.UNAUTHORISED];
 };
 
+const editWorld = async (apiKey: string, worldId: string, updatedWorldInfo: IWorld): Promise<StatusEnum> => {
+    try {
+        const [userStatus, user] = await getUserFromApiKey(apiKey);
+        const world = await World.findById(worldId).exec();
+
+        if (userStatus == StatusEnum.SUCCESS && user && world && world.owner == user._id) {
+            world.description = updatedWorldInfo.description;
+            world.dmOnlyNotes = updatedWorldInfo.dmOnlyNotes;
+
+
+            await world.save();
+
+            return StatusEnum.SUCCESS;
+        }
+
+        return StatusEnum.UNAUTHORISED;
+    } catch {
+        return StatusEnum.ERROR;
+    }
+};
+
 // Exports the functions provided by this file
-export = { connectDB, createUser, getApiKey, createWorld, getWorld, addPlayerToWorld, createArea };
+export = { connectDB, createUser, getApiKey, createWorld, getWorld, addPlayerToWorld, createArea, editWorld };

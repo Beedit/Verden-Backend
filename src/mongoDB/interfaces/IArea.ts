@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 
 export interface IArea {
+    _id: Types.ObjectId,
     name: string,
     owner: Types.ObjectId,
     world: Types.ObjectId,

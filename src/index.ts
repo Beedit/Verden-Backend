@@ -156,6 +156,6 @@ app.all("/{*any}", (req: Request, res: Response) => {
 // Runs the API once the connection to the database has been made
 mongoose.connection.once("open", () => {
     app.listen(port, async () => {
-        console.log(`Listening on port ${port} \nRunning Verden version ${process.env.npm_package_version}`);
+        console.log(`Listening on port ${port} \nRunning Verden version ${process.env.npm_package_version}\n        _____\n    ,-:\` \\;',\`'-, \n  .'-;_,;  ':-;_,'.\n /;   '/    ,  _\`.-\\\n| '\`. (\`     /\` \` \\\`|\n|:.  \`\\\`-.   \\_   / |\n|     (   \`,  .\`\\ ;'|\n \\     | .'     \`-'/\n  \`.   ;/        .'\n    \`'-._____.-'`);
     });
 });
